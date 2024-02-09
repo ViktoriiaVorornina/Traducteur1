@@ -1,5 +1,5 @@
 import random
-
+import data
 #notre data
 phrases = [
     ("Ő vezeti az autót.", "Elle conduit la voiture."),
@@ -59,6 +59,7 @@ phrases = [
     ("Festményeket fest.", "Elle peint des tableaux."),
     ("Színházban játszik.", "Il fait du théâtre.")
 ]
+
 import torchtext
 from torchtext.data import Field, Example, Dataset, BucketIterator
 from torchtext.data.utils import get_tokenizer
@@ -257,13 +258,13 @@ def translate_sentence(sentence, src_field, trg_field, model, device, max_len=50
         
     trg_indexes = [trg_field.vocab.stoi[trg_field.init_token]]
     
-    trg_mask = torch.nn.Transformer.generate_square_subsequent_mask(len(trg_indexes)).to(device)  # Створення маски для декодера
+    trg_mask = torch.nn.Transformer.generate_square_subsequent_mask(len(trg_indexes)).to(device) 
 
     for i in range(max_len):
         trg_tensor = torch.LongTensor([trg_indexes[-1]]).to(device)
                 
         with torch.no_grad():
-            output = model.decoder(model.trg_tok_emb(trg_tensor), encoder_output, tgt_mask=trg_mask)
+            output = model.decoder(model.trg_tok_emb(trg_tensor), encoder_output, tgt_mask=trg_mask, memory_key_padding_mask=None)
         
         pred_token = output.argmax(2)[-1, :].item()
         
